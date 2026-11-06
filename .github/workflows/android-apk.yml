@@ -37,22 +37,24 @@ jobs:
           test -f source.zip
           mkdir extracted
           unzip -q source.zip -d extracted
-          echo "APP_DIR=extracted/studyos436/studyos43/studyos-app" >> "$GITHUB_ENV"
+          test -f extracted/package.json
+          test -f extracted/capacitor.config.ts
+          test -f extracted/studyos436/studyos43/studyos-app/www/index.html
 
       - name: Install dependencies
-        working-directory: extracted/studyos436/studyos43/studyos-app
+        working-directory: extracted
         run: npm install --no-audit --no-fund
 
       - name: Generate Android project
-        working-directory: extracted/studyos436/studyos43/studyos-app
+        working-directory: extracted
         run: npx cap add android
 
       - name: Sync web assets
-        working-directory: extracted/studyos436/studyos43/studyos-app
+        working-directory: extracted
         run: npx cap sync android
 
       - name: Build installable debug APK
-        working-directory: extracted/studyos436/studyos43/studyos-app/android
+        working-directory: extracted/android
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon assembleDebug
@@ -61,6 +63,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: StudyOS-4.3.6-Android-debug-APK
-          path: extracted/studyos436/studyos43/studyos-app/android/app/build/outputs/apk/debug/app-debug.apk
+          path: extracted/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
