@@ -1,0 +1,100 @@
+name: Build signed StudyOS APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'StudyOS-Android-Release-Source.zip'
+      - '.github/workflows/android-release.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  android-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract Android project
+        run: |
+          test -f StudyOS-Android-Release-Source.zip
+          unzip -q StudyOS-Android-Release-Source.zip
+          test -f StudyOS-Android-Release/package.json
+          test -f StudyOS-Android-Release/android/app/build.gradle
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Install JavaScript dependencies
+        working-directory: StudyOS-Android-Release
+        run: npm install
+
+      - name: Sync Capacitor
+        working-directory: StudyOS-Android-Release
+        run: npx cap sync android
+
+      - name: Verify app source
+        working-directory: StudyOS-Android-Release
+        run: node tests/verify-source.mjs
+
+      - name: Configure release signing
+        working-directory: StudyOS-Android-Release
+        env:
+          KEYSTORE_BASE64: ${{ secrets.STUDYOS_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.STUDYOS_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.STUDYOS_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.STUDYOS_KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_BASE64"
+          test -n "$KEYSTORE_PASSWORD"
+          test -n "$KEY_ALIAS"
+          test -n "$KEY_PASSWORD"
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/release-key.jks
+          cat > android/keystore.properties <<EOF
+          storeFile=release-key.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+
+      - name: Build release APK
+        working-directory: StudyOS-Android-Release
+        run: gradle -p android --no-daemon clean assembleRelease
+
+      - name: Verify APK signature and package
+        working-directory: StudyOS-Android-Release
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          test -f "$APK"
+          $ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose --print-certs "$APK"
+          $ANDROID_HOME/build-tools/35.0.0/aapt dump badging "$APK" | grep -F "package: name='com.hunterhz.studyos'"
+          cp "$APK" StudyOS-release.apk
+
+      - name: Upload signed APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: StudyOS-release-apk
+          path: StudyOS-Android-Release/StudyOS-release.apk
+          if-no-files-found: error
+          retention-days: 30
