@@ -1,0 +1,72 @@
+name: Build StudyOS Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'studyos-android/**'
+      - '.github/workflows/android-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: studyos-android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: studyos-android/package-lock.json
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Install JavaScript dependencies
+        working-directory: studyos-android
+        run: npm ci --no-audit --no-fund
+
+      - name: Generate Android project and apply StudyOS native layer
+        working-directory: studyos-android
+        run: npm run setup
+
+      - name: Run source tests
+        working-directory: studyos-android
+        run: npm test
+
+      - name: Build installable debug APK
+        working-directory: studyos-android
+        run: npm run build:debug
+
+      - name: Record APK checksum
+        working-directory: studyos-android
+        run: sha256sum dist/StudyOS-debug.apk > dist/SHA256SUMS.txt
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StudyOS-4.3.6-Android-debug-APK
+          path: |
+            studyos-android/dist/StudyOS-debug.apk
+            studyos-android/dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
