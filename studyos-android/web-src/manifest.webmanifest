@@ -1,0 +1,10 @@
+{
+  "name": "StudyOS 4.3.6 — Academic workspace",
+  "short_name": "StudyOS",
+  "description": "Academic productivity, study planning, gradebook and exam tracking.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f7f2fa",
+  "theme_color": "#6750a4",
+  "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

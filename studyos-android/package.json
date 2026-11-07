@@ -1,0 +1,27 @@
+{
+  "name": "studyos-android",
+  "version": "4.3.6",
+  "private": true,
+  "description": "StudyOS Android app (Capacitor). Developed by HunterHz.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "prepare:web": "node scripts/prepare-web.mjs",
+    "setup": "node scripts/setup-android.mjs",
+    "sync": "node scripts/build.mjs sync",
+    "keystore": "node scripts/keystore.mjs",
+    "build:debug": "node scripts/build.mjs debug",
+    "build:release": "node scripts/build.mjs release",
+    "verify": "node scripts/build.mjs verify",
+    "test": "node scripts/test-import-core.mjs && node scripts/test-keystore.mjs && node scripts/test-prepare-web.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.0",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/core": "^7.4.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.4.0"
+  }
+}

@@ -1,0 +1,105 @@
+// StudyOS build overlay. Applied from android/app/build.gradle by scripts/setup-android.mjs
+// (one appended line: apply from: 'signing.gradle'). Contains NO secrets.
+//
+// Release credentials come from, in order of priority:
+//   1. environment variables  STUDYOS_KEYSTORE_FILE, STUDYOS_KEYSTORE_PASSWORD, STUDYOS_KEY_ALIAS, STUDYOS_KEY_PASSWORD
+//   2. <project root>/keystore.properties  (git-ignored; created by `npm run keystore`)
+//
+// A release build WITHOUT credentials fails on purpose, so an unsigned APK can never be produced by accident.
+
+import java.util.Properties
+
+def studyosRoot = rootProject.projectDir.parentFile
+
+def ksProps = new Properties()
+def ksPropsFile = new File(studyosRoot, 'keystore.properties')
+if (ksPropsFile.exists()) {
+    ksPropsFile.withInputStream { ksProps.load(it) }
+}
+def cred = { String propKey, String envKey -> System.getenv(envKey) ?: ksProps.getProperty(propKey) }
+
+def ksPath = cred('storeFile', 'STUDYOS_KEYSTORE_FILE')
+def ksStorePass = cred('storePassword', 'STUDYOS_KEYSTORE_PASSWORD')
+def ksAlias = cred('keyAlias', 'STUDYOS_KEY_ALIAS')
+def ksKeyPass = cred('keyPassword', 'STUDYOS_KEY_PASSWORD') ?: ksStorePass
+def ksFile = ksPath ? (new File(ksPath).isAbsolute() ? new File(ksPath) : new File(studyosRoot, ksPath)) : null
+def hasSigning = ksFile != null && ksFile.exists() && ksStorePass && ksAlias && ksKeyPass
+
+// Version: version.properties (project root) holds versionName + versionCode. versionCode MUST increase for every
+// release you want to install over an older one. Override with -PversionCode=N -PversionName=X.
+def verProps = new Properties()
+def verFile = new File(studyosRoot, 'version.properties')
+if (verFile.exists()) {
+    verFile.withInputStream { verProps.load(it) }
+}
+def studyosVersionCode = (project.findProperty('versionCode') ?: verProps.getProperty('versionCode') ?: '1').toString().toInteger()
+def studyosVersionName = (project.findProperty('versionName') ?: verProps.getProperty('versionName') ?: '1.0').toString()
+
+// R8/minification stays OFF until you have tested a minified build on a device: -PenableR8=true
+def studyosR8 = project.findProperty('enableR8')?.toString() == 'true'
+
+android {
+    defaultConfig {
+        versionCode studyosVersionCode
+        versionName studyosVersionName
+        manifestPlaceholders = [appLabel: 'StudyOS']
+    }
+
+    signingConfigs {
+        release {
+            if (hasSigning) {
+                storeFile ksFile
+                storePassword ksStorePass
+                keyAlias ksAlias
+                keyPassword ksKeyPass
+                enableV1Signing true   // needed for Android < 7
+                enableV2Signing true
+                enableV3Signing true
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            // Separate app id so the debug build installs NEXT TO the real app and never touches its data.
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-debug'
+            manifestPlaceholders = [appLabel: 'StudyOS Debug']
+            debuggable true
+            minifyEnabled false
+        }
+        release {
+            debuggable false
+            minifyEnabled studyosR8
+            shrinkResources studyosR8
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), file('proguard-studyos.pro')
+            if (hasSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/{AL2.0,LGPL2.1}', 'META-INF/DEPENDENCIES', 'META-INF/INDEX.LIST']
+        }
+    }
+
+    lint {
+        abortOnError false
+    }
+}
+
+// No extra dependencies: music control uses only platform APIs (MediaSessionManager / MediaController).
+
+// Never hand out an unsigned release.
+gradle.taskGraph.whenReady { graph ->
+    def wantsRelease = graph.allTasks.any { t ->
+        t.project == project && (t.name == 'assembleRelease' || t.name == 'packageRelease' || t.name == 'bundleRelease')
+    }
+    if (wantsRelease && !hasSigning) {
+        throw new GradleException(
+            'Release signing is not configured. Run `npm run keystore` once (creates keystore/ and keystore.properties), ' +
+            'or set STUDYOS_KEYSTORE_FILE / STUDYOS_KEYSTORE_PASSWORD / STUDYOS_KEY_ALIAS / STUDYOS_KEY_PASSWORD.')
+    }
+}

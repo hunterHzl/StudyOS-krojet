@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#6750a4" />
+  <meta name="description" content="StudyOS academic planner, gradebook, assignments and exam tracker." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>StudyOS 4.3.6 — Academic workspace</title>
+</head>
+<body>
+  <div class="splash" id="splash" aria-hidden="true">
+    <div class="splash-inner">
+      <div class="splash-mark" data-logo></div>
+      <div class="splash-title">StudyOS</div>
+      <div class="splash-greeting" id="splashGreeting">Good evening, Student</div>
+      <div class="splash-sub">Academic productivity workspace</div>
+      <div class="splash-bar"><span></span></div>
+      <div class="splash-user"><div class="splash-avatar" id="splashAvatar">S</div><div><strong id="splashName">Student</strong><small>Ready to focus</small></div></div>
+    </div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <button type="button" class="brand brand-home" data-view="home" aria-label="StudyOS home" title="Go to Home"><span class="brand-mark" data-logo></span><span class="brand-copy"><strong>StudyOS</strong><small>Academic productivity workspace</small></span></button>
+      <div class="side-label">WORKSPACE</div>
+      <nav class="nav-list" aria-label="Main navigation">
+        <button class="nav-item active" data-view="home"><span class="nav-icon" data-ic="home"></span>Home</button>
+        <button class="nav-item" data-view="academics"><span class="nav-icon" data-ic="academics"></span>Academics</button>
+        <button class="nav-item" data-view="tasks"><span class="nav-icon" data-ic="tasks"></span>Tasks <span class="nav-count" id="taskNavCount">0</span></button>
+        <button class="nav-item" data-view="planner"><span class="nav-icon" data-ic="planner"></span>Planner</button>
+        <button class="nav-item" data-view="timetable"><span class="nav-icon" data-ic="timetable"></span>Timetable</button>
+        <button class="nav-item" data-view="pastpapers"><span class="nav-icon" data-ic="pastpapers"></span>Past Papers</button>
+        <button class="nav-item" data-view="studyspace"><span class="nav-icon" data-ic="studyspace"></span>Study Space</button>
+        <button class="nav-item" data-view="insights"><span class="nav-icon" data-ic="insights"></span>Insights</button>
+        <button class="nav-item" data-view="tools"><span class="nav-icon" data-ic="tools"></span>StudyOS Tools</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-item" data-view="settings"><span class="nav-icon" data-ic="settings"></span>Settings</button>
+        <div class="profile-mini"><div class="avatar" id="avatarInitial">S</div><div><strong id="profileName">Student</strong><small id="profileYear">Academic year</small></div><button class="icon-button small" id="profileEdit" aria-label="Edit profile">✎</button></div>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar"><button class="mobile-menu icon-button" id="mobileMenu" aria-label="Open navigation">☰</button><div class="breadcrumbs"><span>Workspace</span><span class="crumb-sep">/</span><strong id="pageCrumb">Home</strong></div><div class="top-actions"><span class="today-label" id="todayLabel"></span><div class="now-playing-wrap" id="nowPlayingWrap"><button class="now-playing-trigger" id="nowPlayingTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" title="Now Playing"><span class="np-mini-art" id="npMiniArt">♫</span><span class="np-trigger-copy"><strong id="npMiniTitle">Now Playing</strong><small id="npMiniArtist">Connect foobar2000</small><span class="np-mini-lyric" id="npMiniLyric" aria-live="polite">Lyrics appear here</span></span><span class="np-equalizer" id="npEqualizer" aria-hidden="true"><i></i><i></i><i></i></span></button><section class="np-popover" id="nowPlayingPopover" role="dialog" aria-label="Now Playing" hidden><div class="np-popover-head"><span>NOW PLAYING</span><span class="np-connection" id="npConnection">CONNECTING</span></div><div class="np-track"><div class="np-large-art" id="npLargeArt">♫</div><div class="np-track-copy"><strong id="npTrackTitle">Nothing playing</strong><span id="npTrackArtist">Open foobar2000 to begin</span><small id="npTrackAlbum"></small></div></div><div class="np-lyrics-status" id="npLyricsStatus">Lyrics will appear here when a track is playing.</div><div class="np-lyrics" id="npLyrics"><p class="np-lyrics-empty">Your lyrics will appear here.</p></div><div class="np-progress"><div class="np-progress-times"><span id="npCurrentTime">0:00</span><span id="npDuration">0:00</span></div><div class="np-progress-track"><span id="npProgressFill"></span></div></div><div class="np-controls"><button type="button" data-np-control="previous" aria-label="Previous track" title="Previous">|◀</button><button type="button" class="np-play" data-np-control="play-pause" aria-label="Play or pause" title="Play or pause">▶</button><button type="button" data-np-control="next" aria-label="Next track" title="Next">▶|</button></div><div class="np-popover-foot"><span>Powered by foobar2000 + LRCLIB</span><button type="button" id="npRetry">Retry connection</button></div></section></div><button class="icon-button" id="quickAddBtn" aria-label="Quick add">＋</button><button class="avatar top-avatar" id="topProfile" aria-label="Edit profile">S</button></div></header>
+      <div class="content" id="content" tabindex="-1"></div>
+      <footer class="mobile-nav" aria-label="Mobile navigation">
+        <button class="mobile-nav-item active" data-view="home"><span class="mn-icon" data-ic="home" data-ic-size="22"></span><small>Home</small></button>
+        <button class="mobile-nav-item" data-view="academics"><span class="mn-icon" data-ic="academics" data-ic-size="22"></span><small>Academics</small></button>
+        <button class="mobile-nav-item" data-view="tasks"><span class="mn-icon" data-ic="tasks" data-ic-size="22"></span><small>Tasks</small></button>
+        <button class="mobile-nav-item" data-view="planner"><span class="mn-icon" data-ic="planner" data-ic-size="22"></span><small>Planner</small></button>
+        <button class="mobile-nav-item" data-view="pastpapers"><span class="mn-icon" data-ic="pastpapers" data-ic-size="22"></span><small>Papers</small></button>
+        <button class="mobile-nav-item" data-view="studyspace"><span class="mn-icon" data-ic="studyspace" data-ic-size="22"></span><small>Focus</small></button>
+        <button class="mobile-nav-item" data-view="insights"><span class="mn-icon" data-ic="insights" data-ic-size="22"></span><small>Insights</small></button>
+      </footer>
+    </main>
+  </div>
+  <div id="modalRoot"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

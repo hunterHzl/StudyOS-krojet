@@ -1,0 +1,147 @@
+/* StudyOS Android layer. Loaded AFTER styles.css; only adds and refines, never removes the existing look.
+ * Phone  : <= 760px  -> existing compact layout (bottom navigation).
+ * Tablet : >= 761px  -> persistent sidebar (existing) + the wider multi-column layouts below.
+ * Safe areas (status bar, gesture bar, cutouts, keyboard) are handled natively in MainActivity. */
+
+html { -webkit-tap-highlight-color: transparent; }
+body { overscroll-behavior-y: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+button, a, select, input, .nav-item, .mobile-nav-item { touch-action: manipulation; }
+
+/* ---------- touch comfort (only on touch screens) ---------- */
+@media (pointer: coarse) {
+  .icon-button { min-width: 44px; min-height: 44px; }
+  .button { min-height: 44px; }
+  .nav-item { min-height: 46px; }
+  .mobile-nav-item { min-height: 56px; }
+  select, input:not([type="checkbox"]):not([type="radio"]):not([type="range"]) { min-height: 44px; }
+  .np-controls button { min-width: 48px; min-height: 48px; }
+}
+
+/* ---------- tablet: wide dashboard, expanded panels ---------- */
+@media (min-width: 761px) {
+  .mm-shell { height: calc(100dvh - 150px); min-height: 560px; }   /* larger mind-map workspace */
+}
+@media (min-width: 960px) {
+  .stats-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (min-width: 1000px) {
+  .subject-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dashboard-grid { grid-template-columns: minmax(0, 1.5fr) minmax(300px, .9fr); }
+  .planner-grid { grid-template-columns: minmax(0, 1.5fr) minmax(300px, .8fr); }
+  .content { padding-left: 32px; padding-right: 32px; }
+}
+@media (min-width: 1400px) {
+  .content { max-width: 1800px; }
+  .subject-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* ---------- landscape phones / short windows ---------- */
+@media (max-height: 520px) {
+  .topbar { height: 56px; }
+  .brand-copy small { display: none; }
+  .mm-shell { height: calc(100dvh - 118px); min-height: 280px; }
+  .content { padding-top: 16px; }
+}
+@media (max-width: 760px) and (max-height: 520px) {
+  .mobile-nav-item small { display: none; }
+}
+
+/* ---------- Now Playing popover: keep it on-screen, scrollable ---------- */
+.np-popover { max-height: min(86dvh, 640px); overflow-y: auto; overscroll-behavior: contain; }
+@media (max-width: 760px) {
+  .np-popover { position: fixed; top: 68px; left: 14px; right: 14px; width: auto; }
+}
+
+.aos-music { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); display: grid; gap: 10px; }
+.aos-music-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.aos-music-row button {
+  flex: 1 1 130px; padding: 10px 12px; border-radius: 100px; border: 1px solid var(--line);
+  background: var(--surface-low); color: var(--text); font: 700 12px/1.2 var(--font-ui, system-ui); cursor: pointer;
+}
+.aos-music-row button:active { background: var(--primary); color: var(--on-primary); }
+.aos-vol { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+.aos-vol input { flex: 1; accent-color: var(--primary); min-height: 32px; }
+.aos-music-note { font-size: 12px; line-height: 1.4; color: var(--muted); min-height: 0; }
+.aos-music-note:empty { display: none; }
+.aos-tracklist { display: grid; gap: 8px; }
+.aos-tracklist input[type="search"] {
+  width: 100%; box-sizing: border-box; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line);
+  background: var(--surface-low); color: var(--text); font-size: 13px;
+}
+#aosTrackItems { max-height: 220px; overflow-y: auto; display: grid; gap: 2px; }
+.aos-track {
+  display: grid; text-align: left; gap: 1px; padding: 8px 10px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--text); cursor: pointer;
+}
+.aos-track:active, .aos-track:hover { background: var(--surface-low); }
+.aos-track strong { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aos-track small { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aos-more { margin: 4px 8px; font-size: 11px; color: var(--muted); }
+
+/* ---------- offline bar + toast ---------- */
+.aos-offline-bar {
+  margin: 10px 16px 0; padding: 10px 14px; border-radius: 14px; font-size: 12.5px; line-height: 1.45;
+  background: var(--surface-low); color: var(--text); border: 1px solid var(--line);
+}
+.aos-offline-bar[hidden] { display: none; }
+.aos-offline-bar.back { border-color: var(--primary); }
+.aos-toast {
+  position: fixed; left: 50%; bottom: 84px; transform: translate(-50%, 12px); max-width: min(92vw, 460px);
+  padding: 12px 18px; border-radius: 100px; background: var(--text, #1d1b20); color: var(--surface, #fff);
+  font-size: 13px; line-height: 1.35; opacity: 0; pointer-events: none; z-index: 100001;
+  transition: opacity .2s, transform .2s;
+}
+.aos-toast.show { opacity: 1; transform: translate(-50%, 0); }
+@media (min-width: 761px) { .aos-toast { bottom: 28px; } }
+@media (prefers-reduced-motion: reduce) { .aos-toast { transition: none; } }
+
+/* ---------- import assistant ---------- */
+#aosImportCard { grid-column: 1 / -1; }
+#aosImportCard h2 { margin-bottom: 6px; }
+#aosImportCard p { color: var(--muted); font-size: 13px; line-height: 1.5; margin: 0 0 12px; }
+.aos-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.aos-msg { padding: 11px 14px; border-radius: 14px; font-size: 13px; line-height: 1.5; margin: 10px 0; background: var(--surface-low); border: 1px solid var(--line); color: var(--text); }
+.aos-msg.err { border-color: #b3261e; }
+.aos-msg.warn { border-color: #b26a00; }
+.aos-msg.ok { border-color: #2f7654; }
+.aos-foot { font-size: 12px; color: var(--muted); }
+.aos-h { margin: 16px 0 6px; font-size: 14px; }
+.aos-h small { font-weight: 500; color: var(--muted); margin-left: 6px; }
+.aos-scroll { overflow-x: auto; margin: 8px 0; }
+.aos-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.aos-table th, .aos-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.aos-table th { color: var(--muted); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.aos-tag { padding: 2px 8px; border-radius: 100px; font-size: 11px; font-weight: 700; background: var(--surface-low); border: 1px solid var(--line); }
+.aos-tag.used { background: var(--primary-container, var(--surface-low)); }
+.aos-modes { border: 1px solid var(--line); border-radius: 14px; padding: 8px 12px; margin: 12px 0; display: grid; gap: 4px; }
+.aos-modes legend { padding: 0 6px; font-size: 12px; font-weight: 700; color: var(--muted); }
+.aos-modes label { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; cursor: pointer; }
+.aos-modes label span { display: grid; gap: 2px; font-size: 13px; }
+.aos-modes label small { color: var(--muted); font-size: 12px; }
+.aos-modes input { margin-top: 3px; accent-color: var(--primary); }
+.aos-ack { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; margin: 10px 0 0; }
+.aos-details { margin: 12px 0; border: 1px solid var(--line); border-radius: 14px; padding: 4px 12px; }
+.aos-details summary { cursor: pointer; padding: 8px 0; font-size: 13px; font-weight: 700; }
+.aos-pre { white-space: pre-wrap; word-break: break-word; font: 12px/1.5 ui-monospace, Menlo, Consolas, monospace; background: var(--surface-low); border-radius: 12px; padding: 12px; max-height: 320px; overflow: auto; margin: 8px 0; color: var(--text); }
+.aos-file { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.aos-file div { display: grid; min-width: 0; }
+.aos-file strong { font-size: 13px; overflow: hidden; text-overflow: ellipsis; }
+.aos-file small { font-size: 11px; color: var(--muted); }
+.aos-report { width: min(560px, 100%); }
+.aos-report h2 { margin: 0 0 6px; }
+
+/* ---------- music panel (Android media-session) ---------- */
+.aos-access { display: grid; gap: 8px; }
+.aos-access strong { font-size: 14px; }
+.aos-access p, .aos-access li { font-size: 12.5px; line-height: 1.5; color: var(--muted); margin: 0; }
+.aos-access ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.aos-access button, .aos-player button {
+  padding: 10px 14px; border-radius: 100px; border: 1px solid var(--line); background: var(--primary); color: var(--on-primary);
+  font: 700 12.5px/1.2 var(--font-ui, system-ui); cursor: pointer;
+}
+.aos-access details { border: 1px solid var(--line); border-radius: 12px; padding: 4px 12px; }
+.aos-access summary { cursor: pointer; font-size: 12.5px; font-weight: 700; padding: 6px 0; }
+.aos-access details button { margin: 6px 0 8px; background: var(--surface-low); color: var(--text); }
+.aos-player { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 13px; }
+.aos-player button { background: var(--surface-low); color: var(--text); }
+.aos-note { font-size: 12px; line-height: 1.45; color: var(--muted); margin: 0; }
