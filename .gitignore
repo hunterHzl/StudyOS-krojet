@@ -1,0 +1,18 @@
+node_modules/
+www/
+dist/
+# signing material: NEVER commit
+keystore/
+keystore.properties
+*.jks
+*.keystore
+*.p12
+# android build output
+android/local.properties
+android/.gradle/
+android/build/
+android/app/build/
+android/capacitor-cordova-android-plugins/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json

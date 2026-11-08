@@ -1,0 +1,13 @@
+{
+  "appId": "com.hunterhz.studyos",
+  "appName": "StudyOS",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false,
+    "adjustMarginsForEdgeToEdge": "disable"
+  },
+  "plugins": {
+    "SystemBars": { "insetsHandling": "disable" }
+  }
+}
